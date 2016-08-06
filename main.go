@@ -29,7 +29,7 @@ func main() {
 	// Merge all parts again
 	var file [][]byte
 	for _, c := range metadata.Parts {
-		p, err := ioutil.ReadFile(c)
+		p, err := ioutil.ReadFile("parts/" + c)
 		if err != nil {
 			log.Panic("could not read file")
 		}
@@ -38,7 +38,7 @@ func main() {
 	f := splitter.MergeParts(file)
 	fmt.Printf("assembled file size is %d \n", len(f))
 
-	fh, err := os.Create("assembled")
+	fh, err := os.Create("assembled/" + metadata.Filename)
 	if err != nil {
 		log.Printf("could not create assembled file with err: %s", err)
 	}

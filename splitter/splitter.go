@@ -23,7 +23,7 @@ func WriteParts(Parts [][]byte) ([]string, error) {
 	for _, part := range Parts {
 		id := uuid.NewV4().String()
 		ids = append(ids, id)
-		f, err := newFile(id)
+		f, err := newFile("parts/" + id)
 		defer f.Close()
 		if err != nil {
 			return nil, err
