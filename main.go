@@ -1,11 +1,10 @@
 package main
 
 import (
-	"bytes"
-	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
+
+	"./splitter"
 )
 
 func main() {
@@ -16,50 +15,8 @@ func main() {
 		log.Panic("could not read file")
 	}
 
-	parts := splitter(bytes, chunkSize)
-	if err = writeParts(parts); err != nil {
+	parts := splitter.Split(bytes, chunkSize)
+	if err = splitter.WriteParts(parts); err != nil {
 		log.Println(err)
 	}
-}
-
-type part struct {
-	data []byte
-}
-
-func writeParts(parts []part) error {
-	var buf bytes.Buffer
-	for i, part := range parts {
-		f, err := newFile(fmt.Sprintf("%d", i))
-		defer f.Close()
-		if err != nil {
-			return err
-		}
-		buf.Write(part.data)
-		buf.WriteTo(f)
-	}
-	return nil
-}
-
-func splitter(bytes []byte, chunkSize int) []part {
-	var parts []part
-	for i := 0; i <= len(bytes); i += chunkSize {
-		chunk := bytes[i:min(i+chunkSize, len(bytes))]
-		parts = append(parts, part{data: chunk})
-	}
-	return parts
-}
-
-func newFile(filename string) (*os.File, error) {
-	f, err := os.Create(filename)
-	if err != nil {
-		return nil, err
-	}
-	return f, nil
-}
-
-func min(a, b int) int {
-	if a <= b {
-		return a
-	}
-	return b
 }
