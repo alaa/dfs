@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	chunkSize := (1024 * 10)
+	chunkSize := (1024 * 1024) // 1 MB
 
 	bytes, err := ioutil.ReadFile("./test")
 	if err != nil {
@@ -35,12 +35,12 @@ func main() {
 		}
 		file = append(file, p)
 	}
-	f := splitter.MergeParts(file)
-	fmt.Printf("assembled file size is %d \n", len(f))
+	f := splitter.MergeParts(&file)
+	fmt.Printf("assembled file size is %d \n", len(*f))
 
 	fh, err := os.Create("assembled/" + metadata.Filename)
 	if err != nil {
 		log.Printf("could not create assembled file with err: %s", err)
 	}
-	fh.Write(f)
+	fh.Write(*f)
 }
