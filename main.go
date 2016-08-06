@@ -9,27 +9,44 @@ import (
 )
 
 func main() {
-	var buf bytes.Buffer
-	chunkSize := 100
+	chunkSize := (1024 * 10)
 
 	bytes, err := ioutil.ReadFile("./test")
 	if err != nil {
 		log.Panic("could not read file")
 	}
 
-	for i := 0; i <= len(bytes); i += chunkSize {
-		part := bytes[i:min(i+chunkSize, len(bytes))]
-		partName := fmt.Sprintf("part-%d", i)
+	parts := splitter(bytes, chunkSize)
+	if err = writeParts(parts); err != nil {
+		log.Println(err)
+	}
+}
 
-		f, err := newFile(partName)
+type part struct {
+	data []byte
+}
+
+func writeParts(parts []part) error {
+	var buf bytes.Buffer
+	for i, part := range parts {
+		f, err := newFile(fmt.Sprintf("%d", i))
 		defer f.Close()
 		if err != nil {
-			log.Printf("Could not create part file %s", part)
+			return err
 		}
-
-		buf.Write(part)
+		buf.Write(part.data)
 		buf.WriteTo(f)
 	}
+	return nil
+}
+
+func splitter(bytes []byte, chunkSize int) []part {
+	var parts []part
+	for i := 0; i <= len(bytes); i += chunkSize {
+		chunk := bytes[i:min(i+chunkSize, len(bytes))]
+		parts = append(parts, part{data: chunk})
+	}
+	return parts
 }
 
 func newFile(filename string) (*os.File, error) {
