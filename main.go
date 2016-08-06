@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 
 	"./splitter"
 )
@@ -35,4 +36,10 @@ func main() {
 	file = append(file, p2)
 	f := splitter.MergeParts(file)
 	fmt.Printf("assembled file size is %d \n", len(f))
+
+	fh, err := os.Create("assembled")
+	if err != nil {
+		log.Printf("could not create assembled file with err: %s", err)
+	}
+	fh.Write(f)
 }
