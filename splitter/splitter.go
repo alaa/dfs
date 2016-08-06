@@ -2,8 +2,9 @@ package splitter
 
 import (
 	"bytes"
-	"fmt"
 	"os"
+
+	"github.com/twinj/uuid"
 )
 
 func MergeParts(Parts [][]byte) []byte {
@@ -16,18 +17,21 @@ func MergeParts(Parts [][]byte) []byte {
 	return file
 }
 
-func WriteParts(Parts [][]byte) error {
+func WriteParts(Parts [][]byte) ([]string, error) {
 	var buf bytes.Buffer
-	for i, part := range Parts {
-		f, err := newFile(fmt.Sprintf("%d", i))
+	var ids []string
+	for _, part := range Parts {
+		id := uuid.NewV4().String()
+		ids = append(ids, id)
+		f, err := newFile(id)
 		defer f.Close()
 		if err != nil {
-			return err
+			return nil, err
 		}
 		buf.Write(part)
 		buf.WriteTo(f)
 	}
-	return nil
+	return ids, nil
 }
 
 func Split(bytes []byte, chunkSize int) [][]byte {

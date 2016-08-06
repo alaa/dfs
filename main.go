@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"./journal"
 	"./splitter"
 )
 
@@ -18,22 +19,22 @@ func main() {
 	}
 
 	parts := splitter.Split(bytes, chunkSize)
-	if err = splitter.WriteParts(parts); err != nil {
+	ids, err := splitter.WriteParts(parts)
+	if err != nil {
 		log.Println(err)
 	}
+	metadata := journal.Register("test", ids)
+	fmt.Println("%v", metadata)
 
-	p1, err := ioutil.ReadFile("./0")
-	if err != nil {
-		log.Panic("could not read file")
-	}
-	p2, err := ioutil.ReadFile("./1")
-	if err != nil {
-		log.Panic("could not read file")
-	}
-
+	// Merge all parts again
 	var file [][]byte
-	file = append(file, p1)
-	file = append(file, p2)
+	for _, c := range metadata.Parts {
+		p, err := ioutil.ReadFile(c)
+		if err != nil {
+			log.Panic("could not read file")
+		}
+		file = append(file, p)
+	}
 	f := splitter.MergeParts(file)
 	fmt.Printf("assembled file size is %d \n", len(f))
 
