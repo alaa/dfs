@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	chunkSize := (1024 * 1024) // 1 MB
+	chunkSize := (1024 * 1) // 1 KB
 
 	bytes, err := ioutil.ReadFile("./test")
 	if err != nil {
